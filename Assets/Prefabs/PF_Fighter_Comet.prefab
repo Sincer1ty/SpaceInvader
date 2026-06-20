@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3659691333628470724
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5961829443408246182}
+  - component: {fileID: 2152597616816092988}
+  m_Layer: 0
+  m_Name: PF_Fighter_Comet
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5961829443408246182
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3659691333628470724}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 244.4, y: -84.9, z: 938.7}
+  m_LocalScale: {x: 0.017, y: 0.017, z: 0.017}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 4658843901829419714}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2152597616816092988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3659691333628470724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1baf3e67bbf4787498e509441a4ecb56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  targetOffsetFadeDistance: 25
+  moveSpeed: 50
+  stopDistance: 10
+  targetOffsetRadius: 14
+--- !u!1001 &4663384268097580748
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5961829443408246182}
+    m_Modifications:
+    - target: {fileID: 1758260091093602, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_Name
+      value: starfighter_spectre_comet
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -53.128586
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -22.297924
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 44.515686
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+--- !u!4 &4658843901829419714 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+  m_PrefabInstance: {fileID: 4663384268097580748}
+  m_PrefabAsset: {fileID: 0}

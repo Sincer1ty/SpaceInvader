@@ -137,6 +137,37 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &5457504050055807344
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5090626945821616890}
+  m_Layer: 0
+  m_Name: FirePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5090626945821616890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5457504050055807344}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.706, z: 4.328}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8859740627136051766}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6411476609350035446
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,6 +179,7 @@ GameObject:
   - component: {fileID: 8859740627136051766}
   - component: {fileID: 2514270840811816112}
   - component: {fileID: 7840656723852221342}
+  - component: {fileID: 6619724063581207431}
   m_Layer: 0
   m_Name: PF_Plane
   m_TagString: Untagged
@@ -170,6 +202,7 @@ Transform:
   m_Children:
   - {fileID: 1845765775365168526}
   - {fileID: 735431367289376968}
+  - {fileID: 5090626945821616890}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2514270840811816112
@@ -216,6 +249,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlaneController
   moveSpeed: 5
   forwardSpeed: 8
+--- !u!114 &6619724063581207431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6411476609350035446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4afa998555fd495180a3057da4759a65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWeapon
+  projectilePrefab: {fileID: 1928418499120857980, guid: 24895e27b573e794d90e8424fad21818, type: 3}
+  firePoint: {fileID: 5090626945821616890}
+  fireRate: 5
+  muzzleForwardOffset: 2
+  projectileScale: 0.45
+  nextFireTime: 1.3
 --- !u!1001 &3420525903253615860
 PrefabInstance:
   m_ObjectHideFlags: 0
