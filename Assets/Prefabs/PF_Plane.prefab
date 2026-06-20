@@ -247,8 +247,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc684c4e7ce5e6b4aab75e855661a841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaneController
-  moveSpeed: 5
+  moveSpeed: 13
   forwardSpeed: 8
+  maxHp: 5
 --- !u!114 &6619724063581207431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,8 +265,6 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1928418499120857980, guid: 24895e27b573e794d90e8424fad21818, type: 3}
   firePoint: {fileID: 5090626945821616890}
   fireRate: 5
-  muzzleForwardOffset: 2
-  projectileScale: 0.45
   nextFireTime: 1.3
 --- !u!1001 &3420525903253615860
 PrefabInstance:

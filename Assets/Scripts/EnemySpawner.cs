@@ -12,81 +12,81 @@ public class EnemySpawner : MonoBehaviour
     [Header("Spawn Settings")]
     [SerializeField] private float firstSpawnDelay = 1f; //
     [SerializeField] private float spawnInterval = 2f;
-    [SerializeField] private int maxAliveEnemies = 10;
     [SerializeField] private float spawnPositionRadius = 4f;
 
     private int nextEnemyIndex;
-    private int aliveEnemyCount;
-    private Coroutine spawnRoutine;
-    
+    private int remainingSpawnCount;
     private PlaneController player;
     
     private void Start()
     {
-        spawnRoutine = StartCoroutine(SpawnLoop());
         player = FindFirstObjectByType<PlaneController>();
+        
+        GameEvent.HitPlayer += IncreaseSpawnCount;
+    }
+
+    private void IncreaseSpawnCount()
+    {
+        remainingSpawnCount++;
     }
 
     private void OnDisable()
     {
-        if (spawnRoutine != null)
-        {
-            StopCoroutine(spawnRoutine);
-            spawnRoutine = null;
-        }
+        StopAllCoroutines();
+        
+        GameEvent.HitPlayer -= IncreaseSpawnCount;
     }
 
     private void OnValidate() // Inspector 값 수정 시점에 자동으로 호출
     {
         firstSpawnDelay = Mathf.Max(0f, firstSpawnDelay);
         spawnInterval = Mathf.Max(0.1f, spawnInterval);
-        maxAliveEnemies = Mathf.Max(1, maxAliveEnemies);
         spawnPositionRadius = Mathf.Max(0f, spawnPositionRadius);
     }
 
+    public void StartSpawning(int spawnCount)
+    {
+        StopSpawning();
+        
+        remainingSpawnCount = spawnCount;
+
+        if (remainingSpawnCount <= 0) return;
+        
+        StartCoroutine(SpawnLoop());
+    }
+
+    public void StopSpawning()
+    {
+        StopAllCoroutines();
+    }
+    
     private IEnumerator SpawnLoop()
     {
         yield return new WaitForSeconds(firstSpawnDelay);
 
-        while (enabled) // 활성화되어 있는 동안
+        while (enabled && remainingSpawnCount > 0) // 활성화되어 있는 동안
         {
-            SpawnEnemy();
-            yield return new WaitForSeconds(spawnInterval);
+            EnemyController enemy = SpawnEnemy();
+            if (enemy != null)
+            {
+                remainingSpawnCount--;
+                yield return new WaitForSeconds(spawnInterval);
+            }
+            else yield return null;
         }
     }
 
-    [ContextMenu("Spawn Enemy")]
-    public void SpawnEnemy()
+    private EnemyController SpawnEnemy()
     {
-        if (!CanSpawn()) return;
+        if (enemyPrefabs == null || enemyPrefabs.Length == 0) return null;
 
         GameObject enemyPrefab = GetEnemyPrefab();
-        EnemyController enemy = Instantiate(enemyPrefab, GetSpawnPosition(), spawnPoint.rotation).GetComponent<EnemyController>();
+        GameObject enemyObject = Instantiate(enemyPrefab, GetSpawnPosition(), spawnPoint.rotation);
+        EnemyController enemy = enemyObject.GetComponent<EnemyController>();
+        
         enemy.Initialize(player.transform);
         
-        aliveEnemyCount++;
-    }
-
-    private bool CanSpawn()
-    {
-        if (spawnPoint == null)
-        {
-            Debug.LogWarning($"{nameof(EnemySpawner)} needs a spawn point.", this);
-            return false;
-        }
-        
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0)
-        {
-            Debug.LogWarning($"{nameof(EnemySpawner)} needs at least one enemy prefab.", this);
-            return false;
-        }
-        
-        if (aliveEnemyCount >= maxAliveEnemies) // 최대 값 이상 스폰 막기
-        {
-            return false;
-        }
-
-        return true;
+        return enemy;
     }
 
     private GameObject GetEnemyPrefab()

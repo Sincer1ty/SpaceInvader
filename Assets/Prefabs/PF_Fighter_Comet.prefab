@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5961829443408246182}
   - component: {fileID: 2152597616816092988}
-  m_Layer: 0
+  - component: {fileID: 1143317708233271708}
+  m_Layer: 6
   m_Name: PF_Fighter_Comet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,10 +46,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1baf3e67bbf4787498e509441a4ecb56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  targetOffsetFadeDistance: 25
   moveSpeed: 50
+  turnSpeed: 6
+  trackingStrength: 1
   stopDistance: 10
-  targetOffsetRadius: 14
+  sideOffsetRange: {x: 3, y: 10}
+  verticalOffsetRange: {x: -20, y: 20}
+  forwardOffsetRange: {x: -2, y: 4}
+  maxHp: 1
+  collisionDamage: 1
+--- !u!65 &1143317708233271708
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3659691333628470724}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 527, y: 403, z: 1594.1}
+  m_Center: {x: 0, y: -70, z: 0}
 --- !u!1001 &4663384268097580748
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61,17 +88,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: starfighter_spectre_comet
       objectReference: {fileID: 0}
+    - target: {fileID: 1758260091093602, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -53.128586
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -22.297924
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 44.515686
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4541605383011342, guid: 22cd1fa6e92ddc645bdd65240e73a520, type: 3}
       propertyPath: m_LocalRotation.w

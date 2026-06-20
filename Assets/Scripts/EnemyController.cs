@@ -3,50 +3,117 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     private Transform target;
-    private Vector3 personalTargetOffset;
-    [SerializeField] private float targetOffsetFadeDistance = 20f;
+    private Vector3 localTargetOffset;
+    private Vector3 currentMoveDirection;
+    private bool isDead;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 30f;
+    [SerializeField] private float turnSpeed = 6f;
+    [SerializeField] private float trackingStrength = 1f;
+    [SerializeField] private Vector2 speedRange = new Vector2(0.9f, 1.1f);
     [SerializeField] private float stopDistance = 1f;
-    [SerializeField] private float targetOffsetRadius = 4f;
+    [SerializeField] private Vector2 sideOffsetRange = new Vector2(3f, 10f);
+    [SerializeField] private Vector2 verticalOffsetRange = new Vector2(-2f, 5f);
+    [SerializeField] private Vector2 forwardOffsetRange = new Vector2(-2f, 4f);
+
+    [Header("Combat")]
+    [SerializeField] private float maxHp = 1f;
+    [SerializeField] private float collisionDamage = 1f; // player 에게 입히는 데미지
+    
+    private float currentHp;
     
     private void Update()
     {
-        float distanceToPlayer = Vector3.Distance(transform.position, target.position); // player 까지의 거리
-        float offsetWeight = Mathf.Clamp01((distanceToPlayer - stopDistance) / targetOffsetFadeDistance); // 오프셋 적용 비율
-        Vector3 targetPosition = target.position + personalTargetOffset * offsetWeight;
+        if (target == null || isDead) return;
+        
+        Vector3 targetPosition = GetTargetPosition();
         Vector3 directionToTarget = targetPosition - transform.position; // 타겟까지의 거리
         if (directionToTarget.magnitude <= stopDistance)
         {
-            gameObject.SetActive(false);
+            HitPlayer();
             return;
         }
         
         Vector3 desiredDirection = directionToTarget.normalized;
-        Move(desiredDirection);
+        MoveToward(desiredDirection);
     }
 
     public void Initialize(Transform player)
     {
-        target = player.transform;
-        SetData(moveSpeed, new Vector2(0.9f, 1.1f), 
-            new Vector2(1f, targetOffsetRadius),
-            new Vector2(10f, 20f));
+        currentHp = maxHp;
+        isDead = false;
+        target = player;
+        SetData(moveSpeed, turnSpeed, trackingStrength, speedRange,
+            sideOffsetRange, verticalOffsetRange, forwardOffsetRange);
     }
     
-    public void SetData(float baseMoveSpeed, Vector2 speedMultiplierRange, 
-        Vector2 targetOffsetRadiusRange, Vector2 targetOffsetFadeDistanceRange)
+    public void SetData(float baseMoveSpeed, float newTurnSpeed, float newTrackingStrength,
+        Vector2 speedMultiplierRange, Vector2 newSideOffsetRange, Vector2 newVerticalOffsetRange,
+        Vector2 newForwardOffsetRange)
     {
-        moveSpeed = Mathf.Max(0f, baseMoveSpeed * Random.Range(speedMultiplierRange.x, speedMultiplierRange.y));
-        targetOffsetRadius = Random.Range(targetOffsetRadiusRange.x, targetOffsetRadiusRange.y);
-        personalTargetOffset = new Vector3(Random.Range(-targetOffsetRadius, targetOffsetRadius), 
-            Random.Range(-targetOffsetRadius, targetOffsetRadius), 0f);
+        moveSpeed = baseMoveSpeed * Random.Range(speedMultiplierRange.x, speedMultiplierRange.y);
+        turnSpeed = Mathf.Max(0.01f, newTurnSpeed);
+        trackingStrength = Mathf.Max(0.01f, newTrackingStrength);
+        sideOffsetRange = newSideOffsetRange;
+        verticalOffsetRange = newVerticalOffsetRange;
+        forwardOffsetRange = newForwardOffsetRange;
+        localTargetOffset = CreateLocalTargetOffset();
     }
 
-    private void Move(Vector3 moveDirection)
+    private void MoveToward(Vector3 desiredDirection)
     {
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
-        transform.rotation = Quaternion.LookRotation(moveDirection);
+        float turnAmount = turnSpeed * trackingStrength * Time.deltaTime;
+        currentMoveDirection = Vector3.Slerp(currentMoveDirection, desiredDirection, turnAmount).normalized;
+        transform.position += currentMoveDirection * moveSpeed * Time.deltaTime;
+        transform.rotation = Quaternion.LookRotation(currentMoveDirection);
+    }
+
+    private Vector3 GetTargetPosition()
+    {
+        return target.position
+               + target.right * localTargetOffset.x
+               + target.up * localTargetOffset.y
+               + target.forward * localTargetOffset.z;
+    }
+
+    private Vector3 CreateLocalTargetOffset()
+    {
+        float side = Random.Range(sideOffsetRange.x, sideOffsetRange.y);
+        if (Random.value < 0.5f) side *= -1f;
+
+        float vertical = Random.Range(verticalOffsetRange.x, verticalOffsetRange.y);
+        float forward = Random.Range(forwardOffsetRange.x, forwardOffsetRange.y);
+        return new Vector3(side, vertical, forward);
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (isDead) return;
+        
+        currentHp -= damage;
+
+        if (currentHp <= 0f)
+            Die();
+        
+        GameEvent.EnemyKilled?.Invoke();
+    }
+    
+    private void HitPlayer()
+    {
+        PlaneController player = target.GetComponent<PlaneController>();
+        if (player != null)
+            player.TakeDamage(collisionDamage);
+
+        Die();
+        GameEvent.HitPlayer.Invoke();
+    }
+
+    private void Die()
+    {
+        if (isDead) return;
+
+        isDead = true;
+        Destroy(gameObject);
     }
 }
