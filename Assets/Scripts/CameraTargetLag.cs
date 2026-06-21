@@ -8,10 +8,12 @@ public sealed class CameraTargetLag : MonoBehaviour
 
     [Header("Start Inertia")]
     [SerializeField] private bool useScreenPlaneOnly = true;
-    [SerializeField, Min(0f)] private float inertiaStrength = 0.018f;
-    [SerializeField, Min(0f)] private float maxInertiaOffset = 0.32f;
-    [SerializeField, Min(0.01f)] private float returnSmoothTime = 0.22f;
-    [SerializeField, Min(0f)] private float minVelocityChange = 0.5f;
+    [SerializeField, Min(0f)] private float inertiaStrength = 0.0035f;
+    [SerializeField, Min(0f)] private float maxInertiaOffset = 0.1f;
+    [SerializeField, Min(0.01f)] private float impulseSmoothTime = 0.08f;
+    [SerializeField, Min(0.01f)] private float returnSmoothTime = 0.38f;
+    [SerializeField, Min(0f)] private float minVelocityChange = 4f;
+    [SerializeField, Min(0f)] private float triggerCooldown = 0.16f;
 
     [Header("Rotation")]
     [SerializeField] private bool followParentRotation = true;
@@ -19,28 +21,31 @@ public sealed class CameraTargetLag : MonoBehaviour
     private Vector3 runtimeLocalOffset;
     private Vector3 shakeOffset;
     private Vector3 inertiaLocalOffset;
+    private Vector3 targetInertiaLocalOffset;
     private Vector3 inertiaReturnVelocity;
+    private Vector3 inertiaBlendVelocity;
     private Vector3 previousParentPosition;
     private Vector3 previousLocalVelocity;
+    private float lastTriggerTime = float.NegativeInfinity;
     private bool initialized;
 
-    // public Vector3 BaseLocalOffset
-    // {
-    //     get => baseLocalOffset;
-    //     set => baseLocalOffset = value;
-    // }
-    //
-    // public Vector3 RuntimeLocalOffset
-    // {
-    //     get => runtimeLocalOffset;
-    //     set => runtimeLocalOffset = value;
-    // }
-    //
-    // public Vector3 ShakeOffset
-    // {
-    //     get => shakeOffset;
-    //     set => shakeOffset = value;
-    // }
+    public Vector3 BaseLocalOffset
+    {
+        get => baseLocalOffset;
+        set => baseLocalOffset = value;
+    }
+
+    public Vector3 RuntimeLocalOffset
+    {
+        get => runtimeLocalOffset;
+        set => runtimeLocalOffset = value;
+    }
+
+    public Vector3 ShakeOffset
+    {
+        get => shakeOffset;
+        set => shakeOffset = value;
+    }
 
     private void OnEnable()
     {
@@ -49,10 +54,10 @@ public sealed class CameraTargetLag : MonoBehaviour
 
     private void LateUpdate()
     {
-        // if (transform.parent == null)
-        // {
-        //     return;
-        // }
+        if (transform.parent == null)
+        {
+            return;
+        }
 
         if (!Application.isPlaying)
         {
@@ -74,14 +79,16 @@ public sealed class CameraTargetLag : MonoBehaviour
 
     public void SnapToDesiredPose()
     {
-        // if (transform.parent == null)
-        // {
-        //     initialized = true;
-        //     return;
-        // }
+        if (transform.parent == null)
+        {
+            initialized = true;
+            return;
+        }
 
         inertiaLocalOffset = Vector3.zero;
+        targetInertiaLocalOffset = Vector3.zero;
         inertiaReturnVelocity = Vector3.zero;
+        inertiaBlendVelocity = Vector3.zero;
         SetTargetPose();
         CacheParentMotionState(Vector3.zero);
         initialized = true;
@@ -103,21 +110,51 @@ public sealed class CameraTargetLag : MonoBehaviour
         }
 
         Vector3 velocityChange = localVelocity - previousLocalVelocity;
-        if (velocityChange.magnitude >= minVelocityChange)
+        if (ShouldTriggerInertia(localVelocity, velocityChange))
         {
-            inertiaLocalOffset -= velocityChange * inertiaStrength;
-            inertiaLocalOffset = Vector3.ClampMagnitude(inertiaLocalOffset, maxInertiaOffset);
+            targetInertiaLocalOffset -= velocityChange * inertiaStrength;
+            targetInertiaLocalOffset = Vector3.ClampMagnitude(targetInertiaLocalOffset, maxInertiaOffset);
+            lastTriggerTime = Time.time;
         }
 
-        inertiaLocalOffset = Vector3.SmoothDamp(
-            inertiaLocalOffset,
+        targetInertiaLocalOffset = Vector3.SmoothDamp(
+            targetInertiaLocalOffset,
             Vector3.zero,
             ref inertiaReturnVelocity,
             returnSmoothTime,
             Mathf.Infinity,
             deltaTime);
 
+        inertiaLocalOffset = Vector3.SmoothDamp(
+            inertiaLocalOffset,
+            targetInertiaLocalOffset,
+            ref inertiaBlendVelocity,
+            impulseSmoothTime,
+            Mathf.Infinity,
+            deltaTime);
+
         CacheParentMotionState(localVelocity);
+    }
+
+    private bool ShouldTriggerInertia(Vector3 localVelocity, Vector3 velocityChange)
+    {
+        if (Time.time - lastTriggerTime < triggerCooldown)
+        {
+            return false;
+        }
+
+        float currentSpeed = localVelocity.magnitude;
+        float previousSpeed = previousLocalVelocity.magnitude;
+        if (currentSpeed < minVelocityChange || velocityChange.magnitude < minVelocityChange)
+        {
+            return false;
+        }
+
+        bool startedMoving = previousSpeed < minVelocityChange;
+        bool changedDirection = previousSpeed >= minVelocityChange
+            && Vector3.Dot(localVelocity.normalized, previousLocalVelocity.normalized) < 0.75f;
+
+        return startedMoving || changedDirection;
     }
 
     private void SetTargetPose()

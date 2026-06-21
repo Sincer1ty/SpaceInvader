@@ -46,10 +46,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraTargetLag
   baseLocalOffset: {x: 0, y: 0, z: 0}
   useScreenPlaneOnly: 1
-  inertiaStrength: 0.018
-  maxInertiaOffset: 0.32
-  returnSmoothTime: 0.22
-  minVelocityChange: 0.5
+  inertiaStrength: 0.0035
+  maxInertiaOffset: 0.1
+  impulseSmoothTime: 0.08
+  returnSmoothTime: 0.38
+  minVelocityChange: 4
+  triggerCooldown: 0.16
   followParentRotation: 1
 --- !u!1 &5457504050055807344
 GameObject:
@@ -255,8 +257,16 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4969957286427631519, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5396991237778992403, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6269354247504215599, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:

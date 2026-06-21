@@ -797,6 +797,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   sfxSource: {fileID: 1204793841}
   explosionClip: {fileID: 8300000, guid: 8f7a57cfaa9f13d4c8fc22bdc11a9af4, type: 3}
+  shootClip: {fileID: 8300000, guid: f764d4fe218453e47ba650d6cd8fc11d, type: 3}
 --- !u!1 &1377540251
 GameObject:
   m_ObjectHideFlags: 0
@@ -1655,6 +1656,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 771000000000000003, guid: 922bc72c45637374ea03fb66c89acc22, type: 3}
+      propertyPath: impulseSmoothTime
+      value: 0.68
+      objectReference: {fileID: 0}
     - target: {fileID: 771000000000000004, guid: 922bc72c45637374ea03fb66c89acc22, type: 3}
       propertyPath: m_Enabled
       value: 0

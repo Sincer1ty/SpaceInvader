@@ -18,6 +18,8 @@ public class PlayerWeapon : MonoBehaviour
         if (Time.time < nextFireTime) return; // 다음 발사 가능 시점이 되기 전까지 발사 제한
         
         nextFireTime = Time.time + 1f / Mathf.Max(0.01f, shotsPerSecond); // 다음 발사 시점 계산
+        // sfx
+        AudioManager.Instance.PlayShoot();
         Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
     }
 }
