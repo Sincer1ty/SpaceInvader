@@ -10,8 +10,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private bool randomEnemy = true;
 
     [Header("Spawn Settings")]
-    [SerializeField] private float firstSpawnDelay = 1f; //
-    [SerializeField] private float spawnInterval = 2f;
+    [SerializeField] private float firstSpawnDelay = 1f;
     [SerializeField] private float spawnPositionRadius = 4f;
 
     private int nextEnemyIndex;
@@ -40,11 +39,10 @@ public class EnemySpawner : MonoBehaviour
     private void OnValidate() // Inspector 값 수정 시점에 자동으로 호출
     {
         firstSpawnDelay = Mathf.Max(0f, firstSpawnDelay);
-        spawnInterval = Mathf.Max(0.1f, spawnInterval);
         spawnPositionRadius = Mathf.Max(0f, spawnPositionRadius);
     }
 
-    public void StartSpawning(int spawnCount)
+    public void StartSpawning(int spawnCount, float interval)
     {
         StopSpawning();
         
@@ -52,7 +50,7 @@ public class EnemySpawner : MonoBehaviour
 
         if (remainingSpawnCount <= 0) return;
         
-        StartCoroutine(SpawnLoop());
+        StartCoroutine(SpawnLoop(interval));
     }
 
     public void StopSpawning()
@@ -60,7 +58,7 @@ public class EnemySpawner : MonoBehaviour
         StopAllCoroutines();
     }
     
-    private IEnumerator SpawnLoop()
+    private IEnumerator SpawnLoop(float interval)
     {
         yield return new WaitForSeconds(firstSpawnDelay);
 
@@ -70,7 +68,8 @@ public class EnemySpawner : MonoBehaviour
             if (enemy != null)
             {
                 remainingSpawnCount--;
-                yield return new WaitForSeconds(spawnInterval);
+                
+                yield return new WaitForSeconds(interval);
             }
             else yield return null;
         }

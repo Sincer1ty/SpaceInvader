@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaneController
   moveSpeed: 25
-  forwardSpeed: 8
+  forwardSpeed: 0
   maxHp: 5
 --- !u!114 &6619724063581207431
 MonoBehaviour:
@@ -342,7 +342,12 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 5396991237778992403, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5396991237778992403, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
   speed: 130
-  lifeTime: 3
+  lifeTime: 1.5
   damage: 1
 --- !u!54 &683565802581668132
 Rigidbody:

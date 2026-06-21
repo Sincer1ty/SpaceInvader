@@ -29,7 +29,8 @@ public class EnemyController : MonoBehaviour
     private float currentHp;
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] float vfxScale = 3f;
-
+    [SerializeField] private float vfxDuration = 2f;
+    
     private void OnValidate()
     {
         farApproachDistance = Mathf.Max(0.1f, farApproachDistance);
@@ -146,6 +147,7 @@ public class EnemyController : MonoBehaviour
             Quaternion.identity
         );
         vfx.transform.localScale = Vector3.one * vfxScale;
+        Destroy(vfx, vfxDuration);
         
         AudioManager.Instance.PlayExplosion(); // 효과음
         Destroy(gameObject);

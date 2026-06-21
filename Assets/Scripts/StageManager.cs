@@ -10,6 +10,8 @@ public class StageManager : MonoBehaviour
     [FormerlySerializedAs("stageEnemyCounts")]
     [SerializeField] private int[] stageTargetKillCounts = { 20, 30, 50 };
     [SerializeField] private float nextStageDelay = 2f;
+    [SerializeField] private float spawnInterval = 2f;
+    [SerializeField] private float fastRate = 0.3f; // 스테이지별 spawn 시간이 빨라지는 정도
 
     private int currentStageIndex;
     private int targetKillCount;
@@ -65,7 +67,8 @@ public class StageManager : MonoBehaviour
         stageCleared = false;
         gameCleared = false;
 
-        enemySpawner.StartSpawning(targetKillCount);
+        float interval = Mathf.Max(0.5f, spawnInterval - (CurrentStageNumber - 1) * fastRate);
+        enemySpawner.StartSpawning(targetKillCount, interval);
         stageStartUI.ShowStage(CurrentStageNumber, targetKillCount);
         stageStartUI.UpdateKillCount(currentKillCount, targetKillCount);
         Debug.Log($"Stage {CurrentStageNumber} started. Target kills: {targetKillCount}", this);
