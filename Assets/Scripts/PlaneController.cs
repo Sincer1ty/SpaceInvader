@@ -7,15 +7,12 @@ public class PlaneController : MonoBehaviour
     [SerializeField] private float forwardSpeed = 8f;
     
     [Header("Health")]
-    [SerializeField] private float maxHp = 5f;
+    [SerializeField] private int maxHp = 5;
 
     private Vector2 moveInput;
     private Vector3 moveDirection;
-    private float currentHp;
+    private int currentHp;
     private float nextDamageTime;
-
-    public float CurrentHp => currentHp;
-    public float MaxHp => maxHp;
     
     private void Awake()
     {
@@ -36,11 +33,12 @@ public class PlaneController : MonoBehaviour
         transform.position += movement * Time.deltaTime;
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(int damage)
     {
         if (currentHp <= 0f) return;
 
-        currentHp = Mathf.Max(0f, currentHp - Mathf.Max(0f, damage));
+        currentHp = currentHp - damage;
+        GameEvent.OnHpChanged.Invoke(currentHp);
         
         Debug.Log($"Player HP: {currentHp}/{maxHp}", this);
 

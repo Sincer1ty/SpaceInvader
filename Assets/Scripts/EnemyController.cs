@@ -24,7 +24,7 @@ public class EnemyController : MonoBehaviour
 
     [Header("Combat")]
     [SerializeField] private float maxHp = 1f;
-    [SerializeField] private float collisionDamage = 1f; // player 에게 입히는 데미지
+    [SerializeField] private int collisionDamage = 1; // player 에게 입히는 데미지
     
     private float currentHp;
 

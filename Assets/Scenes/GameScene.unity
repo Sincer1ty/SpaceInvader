@@ -915,7 +915,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 704083586226569349, guid: 4665e8259ef41874284778f97ea4c37b, type: 3}
       propertyPath: m_Name
-      value: Stage Canvas
+      value: Canvas
       objectReference: {fileID: 0}
     - target: {fileID: 7066342867488237784, guid: 4665e8259ef41874284778f97ea4c37b, type: 3}
       propertyPath: m_Pivot.x
@@ -996,6 +996,10 @@ PrefabInstance:
     - target: {fileID: 7066342867488237784, guid: 4665e8259ef41874284778f97ea4c37b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8576279189783388395, guid: 4665e8259ef41874284778f97ea4c37b, type: 3}
+      propertyPath: m_Alpha
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -1,29 +1,27 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StageStartUI : MonoBehaviour
 {
-    private CanvasGroup canvasGroup;
-    
     [SerializeField] private TextMeshProUGUI stageText;
     [SerializeField] private float fadeDuration = 0.35f;
     [SerializeField] private float visibleDuration = 2f;
-    
+    [SerializeField] private Image[] hearts;
+
     private void Awake()
     {
-        canvasGroup = GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-        {
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
-        }
-        canvasGroup.alpha = 0f;
+        Color color = stageText.color;
+        color.a = 0f;
+        stageText.color = color;
     }
 
     public void ShowStage(int stageNumber)
     {
         StopAllCoroutines();
-
+        
         stageText.text = $"STAGE {stageNumber}";
         StartCoroutine(ShowRoutine());
     }
@@ -37,17 +35,28 @@ public class StageStartUI : MonoBehaviour
 
     private IEnumerator FadeTo(float targetAlpha)
     {
-        float startAlpha = canvasGroup.alpha;
+        Color color = stageText.color;
+        float startAlpha = color.a;
         float elapsed = 0f;
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
             float t = fadeDuration <= 0f ? 1f : elapsed / fadeDuration;
-            canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
+            color.a = Mathf.Lerp(startAlpha, targetAlpha, t);
+            stageText.color = color;
             yield return null;
         }
 
-        canvasGroup.alpha = targetAlpha;
+        color.a = targetAlpha;
+        stageText.color = color;
+    }
+
+    public void BreakHeart(int currentHp)
+    {
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            hearts[i].enabled = i < currentHp;
+        }
     }
 }

@@ -27,6 +27,7 @@ public class StageManager : MonoBehaviour
         StartStage(0);
         
         GameEvent.EnemyKilled += OnEnemyKilled;
+        GameEvent.OnHpChanged += stageStartUI.BreakHeart;
     }
     
     private void OnDisable()
@@ -34,6 +35,7 @@ public class StageManager : MonoBehaviour
         StopAllCoroutines();
         
         GameEvent.EnemyKilled -= OnEnemyKilled;
+        GameEvent.OnHpChanged -= stageStartUI.BreakHeart;
     }
 
     private void OnValidate() // Inspector 값 수정 시점에 자동으로 호출
