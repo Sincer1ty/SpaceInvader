@@ -12,14 +12,14 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float turnSpeed = 6f;
     [SerializeField] private float trackingStrength = 1f;
     [SerializeField] private Vector2 speedRange = new Vector2(0.9f, 1.1f);
-    [SerializeField] private float stopDistance = 1f;
+    [SerializeField] private float stopDistance = 10f;
     [SerializeField] private Vector2 sideOffsetRange = new Vector2(3f, 10f);
-    [SerializeField] private Vector2 verticalOffsetRange = new Vector2(-2f, 5f);
+    [SerializeField] private Vector2 verticalOffsetRange = new Vector2(-20f, 20f);
     [SerializeField] private Vector2 forwardOffsetRange = new Vector2(-2f, 4f);
 
     [Header("Approach Boost")]
-    [SerializeField] private float farApproachDistance = 180f;
-    [SerializeField] private float normalApproachDistance = 70f;
+    [SerializeField] private float farApproachDistance = 360f;
+    [SerializeField] private float normalApproachDistance = 140f;
     [SerializeField] private float farSpeedMultiplier = 4f;
 
     [Header("Combat")]
@@ -137,6 +137,8 @@ public class EnemyController : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
+        
+        AudioManager.Instance.PlayExplosion(); // 효과음
         Destroy(gameObject);
     }
 }

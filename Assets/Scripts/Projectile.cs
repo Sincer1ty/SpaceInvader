@@ -6,16 +6,9 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float lifeTime = 3f;
     [SerializeField] private float damage = 1f; // 적에게 입히는 데미지
     
-    private Vector3 moveDirection;
-    
-    private void Start()
-    {
-        moveDirection = transform.forward;
-    }
-
     private void Update()
     {
-        transform.position += moveDirection * speed * Time.deltaTime;
+        transform.position += transform.forward * speed * Time.deltaTime;
     }
 
     private void OnEnable()

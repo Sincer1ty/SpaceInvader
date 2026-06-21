@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 public class StageManager : MonoBehaviour
@@ -14,7 +15,7 @@ public class StageManager : MonoBehaviour
     private int targetKillCount;
     private int currentKillCount;
     private bool stageCleared;
-    private bool gameCleared;
+    public static bool gameCleared;
 
     public int CurrentStageNumber => gameCleared ? stageTargetKillCounts.Length : currentStageIndex + 1;
     
@@ -24,6 +25,7 @@ public class StageManager : MonoBehaviour
         
         GameEvent.EnemyKilled += OnEnemyKilled;
         GameEvent.OnHpChanged += stageStartUI.BreakHeart;
+        GameEvent.PlayerDead += OnPlayerDead;
     }
     
     private void OnDisable()
@@ -32,6 +34,13 @@ public class StageManager : MonoBehaviour
         
         GameEvent.EnemyKilled -= OnEnemyKilled;
         GameEvent.OnHpChanged -= stageStartUI.BreakHeart;
+        GameEvent.PlayerDead -= OnPlayerDead;
+    }
+
+    private void OnPlayerDead()
+    {
+        gameCleared = false;
+        SceneManager.LoadScene("EndScene");
     }
 
     private void OnValidate() // Inspector 값 수정 시점에 자동으로 호출
@@ -103,5 +112,7 @@ public class StageManager : MonoBehaviour
         currentKillCount = targetKillCount;
         enemySpawner.StopSpawning();
         Debug.Log("Game Clear!", this);
+        gameCleared = true;
+        SceneManager.LoadScene("EndScene");
     }
 }

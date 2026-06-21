@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlaneController : MonoBehaviour
 {
@@ -50,7 +51,6 @@ public class PlaneController : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Player destroyed.", this);
-        gameObject.SetActive(false);
+        GameEvent.PlayerDead?.Invoke();
     }
 }

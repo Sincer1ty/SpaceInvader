@@ -59,6 +59,7 @@ MonoBehaviour:
   farSpeedMultiplier: 4
   maxHp: 1
   collisionDamage: 1
+  explosionClip: {fileID: 8300000, guid: 8f7a57cfaa9f13d4c8fc22bdc11a9af4, type: 3}
 --- !u!65 &1143317708233271708
 BoxCollider:
   m_ObjectHideFlags: 0
