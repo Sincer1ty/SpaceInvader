@@ -10,6 +10,7 @@ public class StageStartUI : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.35f;
     [SerializeField] private float visibleDuration = 2f;
     [SerializeField] private Image[] hearts;
+    [SerializeField] private TextMeshProUGUI killText;
 
     private void Awake()
     {
@@ -58,5 +59,10 @@ public class StageStartUI : MonoBehaviour
         {
             hearts[i].enabled = i < currentHp;
         }
+    }
+    
+    public void UpdateKillCount(int killCount, int targetCount)
+    {
+        killText.text = $"{killCount}/{targetCount} KILL";
     }
 }

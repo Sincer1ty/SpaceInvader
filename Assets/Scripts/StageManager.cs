@@ -17,10 +17,6 @@ public class StageManager : MonoBehaviour
     private bool gameCleared;
 
     public int CurrentStageNumber => gameCleared ? stageTargetKillCounts.Length : currentStageIndex + 1;
-    public int TargetKillCount => targetKillCount;
-    public int CurrentKillCount => currentKillCount;
-    public bool StageCleared => stageCleared;
-    public bool GameCleared => gameCleared;
     
     private void Start()
     {
@@ -62,6 +58,7 @@ public class StageManager : MonoBehaviour
 
         enemySpawner.StartSpawning(targetKillCount);
         stageStartUI.ShowStage(CurrentStageNumber);
+        stageStartUI.UpdateKillCount(currentKillCount, targetKillCount);
         Debug.Log($"Stage {CurrentStageNumber} started. Target kills: {targetKillCount}", this);
     }
     
@@ -70,6 +67,7 @@ public class StageManager : MonoBehaviour
         if (gameCleared || stageCleared) return;
 
         currentKillCount++;
+        stageStartUI.UpdateKillCount(currentKillCount, targetKillCount);
         Debug.Log($"Stage {CurrentStageNumber} kills: {currentKillCount}/{targetKillCount}", this);
 
         if (currentKillCount >= targetKillCount)
