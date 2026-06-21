@@ -23,7 +23,7 @@ public class StageStartUI : MonoBehaviour
         StopAllCoroutines();
         
         stageText.text = $"STAGE {stageNumber}";
-        missionText.text = $"Kill {count} Enemies.";
+        missionText.text = $"적 {count}명을 죽여라.";
         StartCoroutine(ShowRoutine());
     }
 
