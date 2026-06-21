@@ -66,7 +66,7 @@ public class StageManager : MonoBehaviour
         gameCleared = false;
 
         enemySpawner.StartSpawning(targetKillCount);
-        stageStartUI.ShowStage(CurrentStageNumber);
+        stageStartUI.ShowStage(CurrentStageNumber, targetKillCount);
         stageStartUI.UpdateKillCount(currentKillCount, targetKillCount);
         Debug.Log($"Stage {CurrentStageNumber} started. Target kills: {targetKillCount}", this);
     }

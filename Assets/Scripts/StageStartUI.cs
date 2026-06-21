@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -6,24 +5,25 @@ using UnityEngine.UI;
 
 public class StageStartUI : MonoBehaviour
 {
+    [SerializeField] private CanvasGroup stagePanel;
     [SerializeField] private TextMeshProUGUI stageText;
     [SerializeField] private float fadeDuration = 0.35f;
     [SerializeField] private float visibleDuration = 2f;
     [SerializeField] private Image[] hearts;
     [SerializeField] private TextMeshProUGUI killText;
+    [SerializeField] private TextMeshProUGUI missionText;
 
     private void Awake()
     {
-        Color color = stageText.color;
-        color.a = 0f;
-        stageText.color = color;
+        stagePanel.alpha = 0f;
     }
 
-    public void ShowStage(int stageNumber)
+    public void ShowStage(int stageNumber, int count)
     {
         StopAllCoroutines();
         
         stageText.text = $"STAGE {stageNumber}";
+        missionText.text = $"Kill {count} Enemies.";
         StartCoroutine(ShowRoutine());
     }
 
@@ -36,21 +36,18 @@ public class StageStartUI : MonoBehaviour
 
     private IEnumerator FadeTo(float targetAlpha)
     {
-        Color color = stageText.color;
-        float startAlpha = color.a;
+        float startAlpha = stagePanel.alpha;
         float elapsed = 0f;
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
             float t = fadeDuration <= 0f ? 1f : elapsed / fadeDuration;
-            color.a = Mathf.Lerp(startAlpha, targetAlpha, t);
-            stageText.color = color;
+            stagePanel.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
             yield return null;
         }
 
-        color.a = targetAlpha;
-        stageText.color = color;
+        stagePanel.alpha = targetAlpha;
     }
 
     public void BreakHeart(int currentHp)
