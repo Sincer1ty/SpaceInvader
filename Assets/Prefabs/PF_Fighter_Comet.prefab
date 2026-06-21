@@ -49,10 +49,14 @@ MonoBehaviour:
   moveSpeed: 50
   turnSpeed: 6
   trackingStrength: 1
+  speedRange: {x: 0.9, y: 1.1}
   stopDistance: 10
   sideOffsetRange: {x: 3, y: 10}
   verticalOffsetRange: {x: -20, y: 20}
   forwardOffsetRange: {x: -2, y: 4}
+  farApproachDistance: 360
+  normalApproachDistance: 140
+  farSpeedMultiplier: 4
   maxHp: 1
   collisionDamage: 1
 --- !u!65 &1143317708233271708

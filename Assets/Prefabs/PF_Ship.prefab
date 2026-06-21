@@ -46,17 +46,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 061e23cd285cece479312b4322155986, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  spawnPoint: {fileID: 0}
+  spawnPoint: {fileID: 9086158376467250710}
   enemyPrefabs:
   - {fileID: 3659691333628470724, guid: 32f2a63e89ca27b4f8ee724582a0ba4b, type: 3}
   - {fileID: 264207246529151371, guid: fa629af49f795974799fc2b6f92e8a3b, type: 3}
   - {fileID: 8986020212738398077, guid: b4ad0582986009c48a41ffcfb36b6dd7, type: 3}
   - {fileID: 4003040515427819408, guid: ed45090573d666e4aa4920398943372d, type: 3}
   randomEnemy: 1
-  spawnOnStart: 1
   firstSpawnDelay: 1
   spawnInterval: 2
-  maxAliveEnemies: 10
+  spawnPositionRadius: 4
 --- !u!1 &8755497831575804824
 GameObject:
   m_ObjectHideFlags: 0

@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc684c4e7ce5e6b4aab75e855661a841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaneController
-  moveSpeed: 13
+  moveSpeed: 25
   forwardSpeed: 8
   maxHp: 5
 --- !u!114 &6619724063581207431
@@ -274,6 +274,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8859740627136051766}
     m_Modifications:
+    - target: {fileID: 3222860449289304220, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.92387956
+      objectReference: {fileID: 0}
+    - target: {fileID: 3222860449289304220, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3222860449289304220, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3222860449289304220, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.38268343
+      objectReference: {fileID: 0}
+    - target: {fileID: 3222860449289304220, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 45
+      objectReference: {fileID: 0}
     - target: {fileID: 3955669132493646202, guid: 246d18f929dc4624faf1ddc2615ddd2b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

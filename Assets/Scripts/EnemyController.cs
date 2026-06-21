@@ -17,11 +17,23 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private Vector2 verticalOffsetRange = new Vector2(-2f, 5f);
     [SerializeField] private Vector2 forwardOffsetRange = new Vector2(-2f, 4f);
 
+    [Header("Approach Boost")]
+    [SerializeField] private float farApproachDistance = 180f;
+    [SerializeField] private float normalApproachDistance = 70f;
+    [SerializeField] private float farSpeedMultiplier = 4f;
+
     [Header("Combat")]
     [SerializeField] private float maxHp = 1f;
     [SerializeField] private float collisionDamage = 1f; // player 에게 입히는 데미지
     
     private float currentHp;
+
+    private void OnValidate()
+    {
+        farApproachDistance = Mathf.Max(0.1f, farApproachDistance);
+        normalApproachDistance = Mathf.Clamp(normalApproachDistance, 0.1f, farApproachDistance);
+        farSpeedMultiplier = Mathf.Max(1f, farSpeedMultiplier);
+    }
     
     private void Update()
     {
@@ -65,8 +77,18 @@ public class EnemyController : MonoBehaviour
     {
         float turnAmount = turnSpeed * trackingStrength * Time.deltaTime;
         currentMoveDirection = Vector3.Slerp(currentMoveDirection, desiredDirection, turnAmount).normalized;
-        transform.position += currentMoveDirection * moveSpeed * Time.deltaTime;
+        transform.position += currentMoveDirection * GetCurrentMoveSpeed() * Time.deltaTime;
         transform.rotation = Quaternion.LookRotation(currentMoveDirection);
+    }
+
+    private float GetCurrentMoveSpeed()
+    {
+        if (target == null) return moveSpeed;
+
+        float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+        float boostWeight = Mathf.InverseLerp(normalApproachDistance, farApproachDistance, distanceToPlayer);
+        float speedMultiplier = Mathf.Lerp(1f, farSpeedMultiplier, boostWeight);
+        return moveSpeed * speedMultiplier;
     }
 
     private Vector3 GetTargetPosition()
@@ -94,9 +116,10 @@ public class EnemyController : MonoBehaviour
         currentHp -= damage;
 
         if (currentHp <= 0f)
+        {
+            GameEvent.EnemyKilled?.Invoke();
             Die();
-        
-        GameEvent.EnemyKilled?.Invoke();
+        }
     }
     
     private void HitPlayer()
@@ -106,7 +129,7 @@ public class EnemyController : MonoBehaviour
             player.TakeDamage(collisionDamage);
 
         Die();
-        GameEvent.HitPlayer.Invoke();
+        GameEvent.HitPlayer?.Invoke();
     }
 
     private void Die()

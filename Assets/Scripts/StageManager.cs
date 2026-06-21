@@ -5,6 +5,7 @@ using UnityEngine.Serialization;
 public class StageManager : MonoBehaviour
 {
     [SerializeField] private EnemySpawner enemySpawner;
+    [SerializeField] private StageStartUI stageStartUI;
     [FormerlySerializedAs("stageEnemyCounts")]
     [SerializeField] private int[] stageTargetKillCounts = { 20, 30, 50 };
     [SerializeField] private float nextStageDelay = 2f;
@@ -57,7 +58,8 @@ public class StageManager : MonoBehaviour
         stageCleared = false;
         gameCleared = false;
 
-        enemySpawner.StartSpawning(targetKillCount); // 매개변수
+        enemySpawner.StartSpawning(targetKillCount);
+        stageStartUI.ShowStage(CurrentStageNumber);
         Debug.Log($"Stage {CurrentStageNumber} started. Target kills: {targetKillCount}", this);
     }
     
