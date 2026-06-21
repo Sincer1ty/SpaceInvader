@@ -27,6 +27,8 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int collisionDamage = 1; // player 에게 입히는 데미지
     
     private float currentHp;
+    [SerializeField] private GameObject explosionPrefab;
+    [SerializeField] float vfxScale = 3f;
 
     private void OnValidate()
     {
@@ -137,6 +139,13 @@ public class EnemyController : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
+        
+        GameObject vfx = Instantiate( // 터지는 이펙트
+            explosionPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+        vfx.transform.localScale = Vector3.one * vfxScale;
         
         AudioManager.Instance.PlayExplosion(); // 효과음
         Destroy(gameObject);
