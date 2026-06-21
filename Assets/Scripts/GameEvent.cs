@@ -1,6 +1,6 @@
 using System;
 
-public static class GameEvent
+public static class GameEvent // 게임 내 이벤트 모음
 {
     public static Action EnemyKilled;
     public static Action HitPlayer;

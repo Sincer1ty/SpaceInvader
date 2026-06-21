@@ -14,26 +14,16 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float spawnPositionRadius = 4f;
 
     private int nextEnemyIndex;
-    private int remainingSpawnCount;
     private PlaneController player;
     
     private void Start()
     {
         player = FindFirstObjectByType<PlaneController>();
-        
-        GameEvent.HitPlayer += IncreaseSpawnCount;
-    }
-
-    private void IncreaseSpawnCount()
-    {
-        remainingSpawnCount++;
     }
 
     private void OnDisable()
     {
-        StopAllCoroutines();
-        
-        GameEvent.HitPlayer -= IncreaseSpawnCount;
+        StopAllCoroutines(); // 실행 중인 코루틴 정지
     }
 
     private void OnValidate() // Inspector 값 수정 시점에 자동으로 호출
@@ -42,13 +32,9 @@ public class EnemySpawner : MonoBehaviour
         spawnPositionRadius = Mathf.Max(0f, spawnPositionRadius);
     }
 
-    public void StartSpawning(int spawnCount, float interval)
+    public void StartSpawning(float interval)
     {
-        StopSpawning();
-        
-        remainingSpawnCount = spawnCount;
-
-        if (remainingSpawnCount <= 0) return;
+        StopSpawning(); // 중복 코루틴 실행 방지
         
         StartCoroutine(SpawnLoop(interval));
     }
@@ -62,13 +48,11 @@ public class EnemySpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(firstSpawnDelay);
 
-        while (enabled && remainingSpawnCount > 0) // 활성화되어 있는 동안
+        while (enabled) // 활성화되어 있는 동안
         {
             EnemyController enemy = SpawnEnemy();
             if (enemy != null)
             {
-                remainingSpawnCount--;
-                
                 yield return new WaitForSeconds(interval);
             }
             else yield return null;
@@ -83,7 +67,7 @@ public class EnemySpawner : MonoBehaviour
         GameObject enemyObject = Instantiate(enemyPrefab, GetSpawnPosition(), spawnPoint.rotation);
         EnemyController enemy = enemyObject.GetComponent<EnemyController>();
         
-        enemy.Initialize(player.transform);
+        enemy.Initialize(player.transform); // 플레이어를 추적 대상으로 전달
         
         return enemy;
     }
@@ -91,15 +75,7 @@ public class EnemySpawner : MonoBehaviour
     private GameObject GetEnemyPrefab()
     {
         if (randomEnemy)
-        {
-            GameObject randomPrefab = null;
-            while (randomPrefab == null)
-            {
-                randomPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
-            }
-
-            return randomPrefab;
-        }
+            return enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
 
         GameObject enemyPrefab = null;
         while (enemyPrefab == null)
@@ -113,7 +89,7 @@ public class EnemySpawner : MonoBehaviour
 
     private Vector3 GetSpawnPosition()
     {
-        Vector2 offset = Random.insideUnitCircle * spawnPositionRadius;
+        Vector2 offset = Random.insideUnitCircle * spawnPositionRadius; // 스폰 지점 주변의 랜덤 위치 계산
         return spawnPoint.position + spawnPoint.right * offset.x + spawnPoint.up * offset.y;
     }
 }

@@ -20,7 +20,7 @@ public class StageStartUI : MonoBehaviour
 
     public void ShowStage(int stageNumber, int count)
     {
-        StopAllCoroutines();
+        StopAllCoroutines(); // 이전에 실행 중인 코루틴 중단
         
         stageText.text = $"STAGE {stageNumber}";
         missionText.text = $"적 {count}명을 죽여라.";
@@ -29,11 +29,12 @@ public class StageStartUI : MonoBehaviour
 
     private IEnumerator ShowRoutine()
     {
-        yield return FadeTo(1f);
-        yield return new WaitForSeconds(visibleDuration);
-        yield return FadeTo(0f);
+        yield return FadeTo(1f); // 페이드 인
+        yield return new WaitForSeconds(visibleDuration); // 일정 시간 표시
+        yield return FadeTo(0f); // 페이드 아웃
     }
 
+    // CanvasGroup의 알파값을 부드럽게 전환
     private IEnumerator FadeTo(float targetAlpha)
     {
         float startAlpha = stagePanel.alpha;
@@ -50,7 +51,7 @@ public class StageStartUI : MonoBehaviour
         stagePanel.alpha = targetAlpha;
     }
 
-    public void BreakHeart(int currentHp)
+    public void UpdateHearts(int currentHp) // 현재 체력 수만큼 하트 표시
     {
         for (int i = 0; i < hearts.Length; i++)
         {

@@ -8,22 +8,24 @@ public class Projectile : MonoBehaviour
     
     private void Update()
     {
+        // 발사 방향으로 지속 이동
         transform.position += transform.forward * speed * Time.deltaTime;
     }
 
     private void OnEnable()
     {
-        Destroy(gameObject, lifeTime);
+        Destroy(gameObject, lifeTime); // 일정 시간이 지나면 자동 제거
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        EnemyController enemy = other.GetComponentInParent<EnemyController>();
+        // 충돌한 오브젝트에서 적 컴포넌트 찾기
+        EnemyController enemy = other.GetComponent<EnemyController>();
 
         if (enemy == null) return;
 
         enemy.TakeDamage(damage);
         Destroy(gameObject);
-        Debug.Log("Projectile Hit");
+        // Debug.Log("Projectile Hit");
     }
 }

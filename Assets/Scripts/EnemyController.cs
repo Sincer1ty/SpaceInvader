@@ -28,7 +28,7 @@ public class EnemyController : MonoBehaviour
     
     private float currentHp;
     [SerializeField] private GameObject explosionPrefab;
-    [SerializeField] float vfxScale = 3f;
+    [SerializeField] private float vfxScale = 3f;
     [SerializeField] private float vfxDuration = 2f;
     
     private void OnValidate()
@@ -43,7 +43,7 @@ public class EnemyController : MonoBehaviour
         if (target == null || isDead) return;
         
         Vector3 targetPosition = GetTargetPosition();
-        Vector3 directionToTarget = targetPosition - transform.position; // 타겟까지의 거리
+        Vector3 directionToTarget = targetPosition - transform.position; // 타겟까지의 방향 벡터
         if (directionToTarget.magnitude <= stopDistance)
         {
             HitPlayer();
@@ -73,12 +73,13 @@ public class EnemyController : MonoBehaviour
         sideOffsetRange = newSideOffsetRange;
         verticalOffsetRange = newVerticalOffsetRange;
         forwardOffsetRange = newForwardOffsetRange;
-        localTargetOffset = CreateLocalTargetOffset();
+        localTargetOffset = CreateLocalTargetOffset(); // 플레이어 주변의 임의 위치를 목표 지점으로 설정
     }
 
     private void MoveToward(Vector3 desiredDirection)
     {
         float turnAmount = turnSpeed * trackingStrength * Time.deltaTime;
+        // 현재 진행 방향을 목표 방향으로 부드럽게 회전
         currentMoveDirection = Vector3.Slerp(currentMoveDirection, desiredDirection, turnAmount).normalized;
         transform.position += currentMoveDirection * GetCurrentMoveSpeed() * Time.deltaTime;
         transform.rotation = Quaternion.LookRotation(currentMoveDirection);
@@ -89,6 +90,7 @@ public class EnemyController : MonoBehaviour
         if (target == null) return moveSpeed;
 
         float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+        // 플레이어와 멀리 떨어져 있을수록 이동 속도 증가
         float boostWeight = Mathf.InverseLerp(normalApproachDistance, farApproachDistance, distanceToPlayer);
         float speedMultiplier = Mathf.Lerp(1f, farSpeedMultiplier, boostWeight);
         return moveSpeed * speedMultiplier;
@@ -120,7 +122,7 @@ public class EnemyController : MonoBehaviour
 
         if (currentHp <= 0f)
         {
-            GameEvent.EnemyKilled?.Invoke();
+            GameEvent.EnemyKilled?.Invoke(); // 적이 죽임당했다는 이벤트 발생
             Die();
         }
     }

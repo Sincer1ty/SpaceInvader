@@ -26,7 +26,7 @@ public class StageManager : MonoBehaviour
         StartStage(0);
         
         GameEvent.EnemyKilled += OnEnemyKilled;
-        GameEvent.OnHpChanged += stageStartUI.BreakHeart;
+        GameEvent.OnHpChanged += stageStartUI.UpdateHearts;
         GameEvent.PlayerDead += OnPlayerDead;
     }
     
@@ -35,7 +35,7 @@ public class StageManager : MonoBehaviour
         StopAllCoroutines();
         
         GameEvent.EnemyKilled -= OnEnemyKilled;
-        GameEvent.OnHpChanged -= stageStartUI.BreakHeart;
+        GameEvent.OnHpChanged -= stageStartUI.UpdateHearts;
         GameEvent.PlayerDead -= OnPlayerDead;
     }
 
@@ -60,18 +60,20 @@ public class StageManager : MonoBehaviour
             ClearGame();
             return;
         }
-
+        
+        // 현재 스테이지 상태로 초기화
         currentStageIndex = stageIndex;
         targetKillCount = stageTargetKillCounts[currentStageIndex];
         currentKillCount = 0;
         stageCleared = false;
         gameCleared = false;
 
+        // 스테이지가 진행될수록 적 생성 주기 줄이기
         float interval = Mathf.Max(0.5f, spawnInterval - (CurrentStageNumber - 1) * fastRate);
-        enemySpawner.StartSpawning(targetKillCount, interval);
+        enemySpawner.StartSpawning(interval);
         stageStartUI.ShowStage(CurrentStageNumber, targetKillCount);
         stageStartUI.UpdateKillCount(currentKillCount, targetKillCount);
-        Debug.Log($"Stage {CurrentStageNumber} started. Target kills: {targetKillCount}", this);
+        // Debug.Log($"Stage {CurrentStageNumber} started. Target kills: {targetKillCount}");
     }
     
     private void OnEnemyKilled()
@@ -80,8 +82,8 @@ public class StageManager : MonoBehaviour
 
         currentKillCount++;
         stageStartUI.UpdateKillCount(currentKillCount, targetKillCount);
-        Debug.Log($"Stage {CurrentStageNumber} kills: {currentKillCount}/{targetKillCount}", this);
 
+        // 목표 처치 수 달성시 스테이지 종료
         if (currentKillCount >= targetKillCount)
         {
             ClearStage();
@@ -104,6 +106,7 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator StartNextStageAfterDelay()
     {
+        // 다음 스테이지 시작 전 잠시 대기
         yield return new WaitForSeconds(nextStageDelay);
         StartStage(currentStageIndex + 1);
     }
@@ -114,8 +117,8 @@ public class StageManager : MonoBehaviour
         gameCleared = true;
         currentKillCount = targetKillCount;
         enemySpawner.StopSpawning();
-        Debug.Log("Game Clear!", this);
-        gameCleared = true;
+        // Debug.Log("Game Clear!");
+        // 엔딩 화면으로 이동
         SceneManager.LoadScene("EndScene");
     }
 }

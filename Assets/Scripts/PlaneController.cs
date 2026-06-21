@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class PlaneController : MonoBehaviour
 {
@@ -13,7 +12,6 @@ public class PlaneController : MonoBehaviour
     private Vector2 moveInput;
     private Vector3 moveDirection;
     private int currentHp;
-    private float nextDamageTime;
     
     private void Awake()
     {
@@ -28,6 +26,7 @@ public class PlaneController : MonoBehaviour
     
     void Update()
     {
+        // 전방 자동 이동 + 플레이어 입력 이동을 합산
         Vector3 movement = transform.forward * forwardSpeed;
         movement += moveDirection * moveSpeed;
 
@@ -36,7 +35,7 @@ public class PlaneController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (currentHp <= 0f) return;
+        if (currentHp <= 0f) return; // 이미 사망한 경우 무시
 
         currentHp = currentHp - damage;
         GameEvent.OnHpChanged.Invoke(currentHp);
@@ -51,6 +50,6 @@ public class PlaneController : MonoBehaviour
 
     private void Die()
     {
-        GameEvent.PlayerDead?.Invoke();
+        GameEvent.PlayerDead?.Invoke(); // 플레이어 사망 이벤트 발생
     }
 }
