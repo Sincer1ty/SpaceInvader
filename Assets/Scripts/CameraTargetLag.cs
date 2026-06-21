@@ -1,10 +1,10 @@
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public sealed class CameraTargetLag : MonoBehaviour
+public sealed class CameraTargetLag : MonoBehaviour // 클래스명 확인
 {
     [Header("Base Follow")]
-    [SerializeField] private Vector3 baseLocalOffset = Vector3.zero;
+    // [SerializeField] private Vector3 baseLocalOffset = Vector3.zero;
 
     [Header("Start Inertia")]
     [SerializeField] private bool useScreenPlaneOnly = true;
@@ -29,24 +29,6 @@ public sealed class CameraTargetLag : MonoBehaviour
     private float lastTriggerTime = float.NegativeInfinity;
     private bool initialized;
 
-    public Vector3 BaseLocalOffset
-    {
-        get => baseLocalOffset;
-        set => baseLocalOffset = value;
-    }
-
-    public Vector3 RuntimeLocalOffset
-    {
-        get => runtimeLocalOffset;
-        set => runtimeLocalOffset = value;
-    }
-
-    public Vector3 ShakeOffset
-    {
-        get => shakeOffset;
-        set => shakeOffset = value;
-    }
-
     private void OnEnable()
     {
         SnapToDesiredPose();
@@ -54,11 +36,6 @@ public sealed class CameraTargetLag : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (transform.parent == null)
-        {
-            return;
-        }
-
         if (!Application.isPlaying)
         {
             inertiaLocalOffset = Vector3.zero;
@@ -77,14 +54,8 @@ public sealed class CameraTargetLag : MonoBehaviour
         SetTargetPose();
     }
 
-    public void SnapToDesiredPose()
+    private void SnapToDesiredPose()
     {
-        if (transform.parent == null)
-        {
-            initialized = true;
-            return;
-        }
-
         inertiaLocalOffset = Vector3.zero;
         targetInertiaLocalOffset = Vector3.zero;
         inertiaReturnVelocity = Vector3.zero;
@@ -159,7 +130,7 @@ public sealed class CameraTargetLag : MonoBehaviour
 
     private void SetTargetPose()
     {
-        Vector3 localOffset = baseLocalOffset + runtimeLocalOffset + shakeOffset + inertiaLocalOffset;
+        Vector3 localOffset = runtimeLocalOffset + shakeOffset + inertiaLocalOffset;
         Vector3 desiredPosition = transform.parent.TransformPoint(localOffset);
         Quaternion desiredRotation = followParentRotation ? transform.parent.rotation : transform.rotation;
         transform.SetPositionAndRotation(desiredPosition, desiredRotation);
