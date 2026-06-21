@@ -44,11 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0a8fb9502e64d74b9e885405a47d0fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraTargetLag
-  baseLocalOffset: {x: 0, y: 0, z: 0}
   useScreenPlaneOnly: 1
   inertiaStrength: 0.0035
   maxInertiaOffset: 0.1
-  impulseSmoothTime: 0.08
+  impulseSmoothTime: 0.68
   returnSmoothTime: 0.38
   minVelocityChange: 4
   triggerCooldown: 0.16

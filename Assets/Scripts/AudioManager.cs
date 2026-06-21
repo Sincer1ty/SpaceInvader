@@ -26,6 +26,6 @@ public class AudioManager : MonoBehaviour
     
     public void PlayShoot() // 발사 효과음 재생
     {
-        sfxSource.PlayOneShot(shootClip);
+        sfxSource.PlayOneShot(shootClip, 0.3f);
     }
 }
