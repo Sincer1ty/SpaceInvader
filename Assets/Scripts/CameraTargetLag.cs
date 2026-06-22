@@ -1,11 +1,8 @@
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public sealed class CameraTargetLag : MonoBehaviour // 클래스명 확인
+public sealed class CameraTargetLag : MonoBehaviour // 카메라 지연 팔로우
 {
-    [Header("Base Follow")]
-    // [SerializeField] private Vector3 baseLocalOffset = Vector3.zero;
-
     [Header("Start Inertia")]
     [SerializeField] private bool useScreenPlaneOnly = true;
     [SerializeField, Min(0f)] private float inertiaStrength = 0.0035f;
@@ -27,34 +24,8 @@ public sealed class CameraTargetLag : MonoBehaviour // 클래스명 확인
     private Vector3 previousParentPosition;
     private Vector3 previousLocalVelocity;
     private float lastTriggerTime = float.NegativeInfinity;
-    private bool initialized;
 
     private void OnEnable()
-    {
-        SnapToDesiredPose();
-    }
-
-    private void LateUpdate()
-    {
-        if (!Application.isPlaying)
-        {
-            inertiaLocalOffset = Vector3.zero;
-            SetTargetPose();
-            CacheParentMotionState(Vector3.zero);
-            initialized = true;
-            return;
-        }
-
-        if (!initialized)
-        {
-            SnapToDesiredPose();
-        }
-
-        UpdateInertiaOffset();
-        SetTargetPose();
-    }
-
-    private void SnapToDesiredPose()
     {
         inertiaLocalOffset = Vector3.zero;
         targetInertiaLocalOffset = Vector3.zero;
@@ -62,7 +33,12 @@ public sealed class CameraTargetLag : MonoBehaviour // 클래스명 확인
         inertiaBlendVelocity = Vector3.zero;
         SetTargetPose();
         CacheParentMotionState(Vector3.zero);
-        initialized = true;
+    }
+
+    private void LateUpdate()
+    {
+        UpdateInertiaOffset();
+        SetTargetPose();
     }
 
     private void UpdateInertiaOffset()
@@ -73,13 +49,14 @@ public sealed class CameraTargetLag : MonoBehaviour // 클래스명 확인
             return;
         }
 
+        // 부모가 이전 프레임에서 현재 프레임까지 얼마나 움직였는지 계산
         Vector3 worldVelocity = (transform.parent.position - previousParentPosition) / deltaTime;
+        // 월드 속도를 부모 로컬 좌표계 속도로 변환
         Vector3 localVelocity = transform.parent.InverseTransformVector(worldVelocity);
         if (useScreenPlaneOnly)
-        {
             localVelocity.z = 0f;
-        }
 
+        // 이번 프레임 속도와 이전 프레임 속도의 차이
         Vector3 velocityChange = localVelocity - previousLocalVelocity;
         if (ShouldTriggerInertia(localVelocity, velocityChange))
         {
@@ -107,21 +84,20 @@ public sealed class CameraTargetLag : MonoBehaviour // 클래스명 확인
         CacheParentMotionState(localVelocity);
     }
 
+    // 관성 효과를 발생시킬지 결정
     private bool ShouldTriggerInertia(Vector3 localVelocity, Vector3 velocityChange)
     {
         if (Time.time - lastTriggerTime < triggerCooldown)
-        {
             return false;
-        }
 
         float currentSpeed = localVelocity.magnitude;
         float previousSpeed = previousLocalVelocity.magnitude;
+        // 속도가 작으면 무시
         if (currentSpeed < minVelocityChange || velocityChange.magnitude < minVelocityChange)
-        {
             return false;
-        }
 
         bool startedMoving = previousSpeed < minVelocityChange;
+        // 기존 이동 방향과 현재 이동 방향이 달라진 경우
         bool changedDirection = previousSpeed >= minVelocityChange
             && Vector3.Dot(localVelocity.normalized, previousLocalVelocity.normalized) < 0.75f;
 

@@ -83,7 +83,7 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
     {
         UpdatePlayerVelocity(); // 플레이어 속도 계산
         UpdateParticleMotion();
-        EmitStars(Application.isPlaying ? Time.deltaTime : 0f);
+        EmitStars(Time.deltaTime);
     }
 
     // 플레이어의 이전 위치와 현재 위치를 비교해서 속도 계산

@@ -146,6 +146,12 @@ public class StageManager : MonoBehaviour
         starfieldSpeedEffect?.SetBoostAmount(1f);
         transitionFade.alpha = 1f;
         
+        if (currentStageIndex + 1 >= stageTargetKillCounts.Length)
+        {
+            ClearGame();
+            yield break;
+        }
+        
         // 원래 상태 복구
         SetCameraFov(originalFov);
         starfieldSpeedEffect?.SetBoostAmount(0f);
