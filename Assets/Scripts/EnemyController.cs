@@ -6,6 +6,7 @@ public class EnemyController : MonoBehaviour
     private Vector3 localTargetOffset;
     private Vector3 currentMoveDirection;
     private bool isDead;
+    private bool canAct = true;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 30f;
@@ -31,16 +32,9 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float vfxScale = 3f;
     [SerializeField] private float vfxDuration = 2f;
     
-    private void OnValidate()
+    private void Update() // 매 프레임마다 플레이어 주변 목표 위치 계산 및 이동
     {
-        farApproachDistance = Mathf.Max(0.1f, farApproachDistance);
-        normalApproachDistance = Mathf.Clamp(normalApproachDistance, 0.1f, farApproachDistance);
-        farSpeedMultiplier = Mathf.Max(1f, farSpeedMultiplier);
-    }
-    
-    private void Update()
-    {
-        if (target == null || isDead) return;
+        if (isDead || !canAct) return;
         
         Vector3 targetPosition = GetTargetPosition();
         Vector3 directionToTarget = targetPosition - transform.position; // 타겟까지의 방향 벡터
@@ -54,16 +48,17 @@ public class EnemyController : MonoBehaviour
         MoveToward(desiredDirection);
     }
 
-    public void Initialize(Transform player)
+    public void Initialize(Transform player) // 생성될 때 초기화
     {
         currentHp = maxHp;
         isDead = false;
+        canAct = true;
         target = player;
         SetData(moveSpeed, turnSpeed, trackingStrength, speedRange,
             sideOffsetRange, verticalOffsetRange, forwardOffsetRange);
     }
     
-    public void SetData(float baseMoveSpeed, float newTurnSpeed, float newTrackingStrength,
+    private void SetData(float baseMoveSpeed, float newTurnSpeed, float newTrackingStrength,
         Vector2 speedMultiplierRange, Vector2 newSideOffsetRange, Vector2 newVerticalOffsetRange,
         Vector2 newForwardOffsetRange)
     {
@@ -96,6 +91,7 @@ public class EnemyController : MonoBehaviour
         return moveSpeed * speedMultiplier;
     }
 
+    // 플레이어 위치 오른쪽, 위쪽, 앞쪽 방향에 랜덤 오프셋을 더하기
     private Vector3 GetTargetPosition()
     {
         return target.position
@@ -116,7 +112,7 @@ public class EnemyController : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if (isDead) return;
+        if (isDead || !canAct) return;
         
         currentHp -= damage;
 
@@ -127,8 +123,10 @@ public class EnemyController : MonoBehaviour
         }
     }
     
-    private void HitPlayer()
+    private void HitPlayer() // 플레이어에게 데미지 입히기
     {
+        if (!canAct || isDead) return;
+
         PlaneController player = target.GetComponent<PlaneController>();
         if (player != null)
             player.TakeDamage(collisionDamage);
@@ -143,7 +141,7 @@ public class EnemyController : MonoBehaviour
 
         isDead = true;
         
-        GameObject vfx = Instantiate( // 터지는 이펙트
+        GameObject vfx = Instantiate(
             explosionPrefab,
             transform.position,
             Quaternion.identity
@@ -151,7 +149,17 @@ public class EnemyController : MonoBehaviour
         vfx.transform.localScale = Vector3.one * vfxScale;
         Destroy(vfx, vfxDuration);
         
-        AudioManager.Instance.PlayExplosion(); // 효과음
+        AudioManager.Instance?.PlayExplosion(); // 효과음
+        Destroy(gameObject);
+    }
+
+    public void Despawn() // 제거
+    {
+        if (isDead) return;
+
+        canAct = false;
+        target = null;
+
         Destroy(gameObject);
     }
 }

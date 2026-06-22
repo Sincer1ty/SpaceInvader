@@ -8,7 +8,6 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform player;
     [SerializeField] private ParticleSystem starParticleSystem;
-    [SerializeField] private bool autoFindPlayer = true;
 
     [Header("Star Shape")]
     [SerializeField, Min(0.001f)] private float minStarSize = 0.012f;
@@ -41,6 +40,12 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
     [SerializeField, Min(0f)] private float idleVelocityScale = 0.08f;
     [SerializeField, Min(0f)] private float maxVelocityScale = 0.42f;
 
+    [Header("External Boost")]
+    [SerializeField, Min(1f)] private float boostSpeedMultiplier = 4f;
+    [SerializeField, Min(1f)] private float boostSpawnMultiplier = 2.5f;
+    [SerializeField, Min(1f)] private float boostLengthMultiplier = 2.5f;
+    [SerializeField, Min(1f)] private float boostVelocityScaleMultiplier = 2f;
+
     private Camera targetCamera;
     private Vector3 previousPlayerPosition;
     private Vector3 previousViewportPosition;
@@ -54,104 +59,84 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
     private float currentLengthScale;
     private float currentVelocityScale;
     private float emissionAccumulator;
+    private float boostAmount;
     private bool hasPreviousPlayerPosition;
 
     private void Awake()
     {
         targetCamera = GetComponent<Camera>();
-        ResolvePlayer();
-    }
-
-    private void OnEnable()
-    {
-        ResolvePlayer();
+        
         CachePlayerState();
-        InitializeRuntimeValues();
-        ConfigureSpawnDistribution();
-        ApplyDynamicParticleSettings();
+        InitializeValues();
+        
+        ParticleSystem.MainModule main = starParticleSystem.main;
+        main.maxParticles = maxParticles;
+        
+        ApplyParticleMotionSettings();
 
-        if (Application.isPlaying)
-        {
-            starParticleSystem.Clear();
-            PrewarmStarfield();
-            starParticleSystem.Play();
-        }
-    }
-
-    private void OnValidate()
-    {
-        referenceSpeed = Mathf.Max(0.01f, referenceSpeed);
-        responseSmoothTime = Mathf.Max(0.01f, responseSmoothTime);
-        maxParticles = Mathf.Max(1, maxParticles);
-        minStarSize = Mathf.Max(0.001f, minStarSize);
-        maxStarSize = Mathf.Max(minStarSize, maxStarSize);
-        centerDeadZone.x = Mathf.Clamp(centerDeadZone.x, 0f, 0.45f);
-        centerDeadZone.y = Mathf.Clamp(centerDeadZone.y, 0f, 0.45f);
-        minSpawnDepth = Mathf.Max(0.1f, minSpawnDepth);
-        maxSpawnDepth = Mathf.Max(minSpawnDepth, maxSpawnDepth);
-        idleSpawnRate = Mathf.Max(0f, idleSpawnRate);
-        maxSpawnRate = Mathf.Max(idleSpawnRate, maxSpawnRate);
-        idleLengthScale = Mathf.Max(0f, idleLengthScale);
-        maxLengthScale = Mathf.Max(idleLengthScale, maxLengthScale);
-        idleVelocityScale = Mathf.Max(0f, idleVelocityScale);
-        maxVelocityScale = Mathf.Max(idleVelocityScale, maxVelocityScale);
-
-        if (starParticleSystem != null)
-        {
-            ConfigureSpawnDistribution();
-            ApplyDynamicParticleSettings();
-        }
+        starParticleSystem.Clear();
+        PrewarmStarfield();
+        starParticleSystem.Play();
     }
 
     private void LateUpdate()
     {
-        UpdatePlayerVelocity();
+        UpdatePlayerVelocity(); // 플레이어 속도 계산
         UpdateParticleMotion();
         EmitStars(Application.isPlaying ? Time.deltaTime : 0f);
     }
 
+    // 플레이어의 이전 위치와 현재 위치를 비교해서 속도 계산
+    // 플레이어가 빠르게 움직일수록 speed01 값이 커짐
     private void UpdatePlayerVelocity()
     {
-        if (player == null || targetCamera == null)
-        {
-            currentVelocity = Vector3.SmoothDamp(currentVelocity, new Vector3(0f, 0f, -idleFlowSpeed), ref velocitySmoothRef, responseSmoothTime);
-            speed01 = Mathf.SmoothStep(speed01, 0f, Time.deltaTime / responseSmoothTime);
-            return;
-        }
-
-        float deltaTime = Application.isPlaying ? Time.deltaTime : 1f / 60f;
-        if (deltaTime <= Mathf.Epsilon || !hasPreviousPlayerPosition)
+        float deltaTime = Time.deltaTime;
+        if (!hasPreviousPlayerPosition) // 이전 위치가 없으면 종료
         {
             CachePlayerState();
             return;
         }
 
+        // 플레이어 실제 속도 계산
         Vector3 worldVelocity = (player.position - previousPlayerPosition) / deltaTime;
+        // 화면 속도 계산
         Vector3 viewportPosition = targetCamera.WorldToViewportPoint(player.position);
         Vector3 viewportVelocity = (viewportPosition - previousViewportPosition) / deltaTime;
+        // 플레이어의 월드 이동 속도를 0~1 범위로 정규화
         speed01 = Mathf.Clamp01(worldVelocity.magnitude / referenceSpeed);
 
+        // 플레이어가 화면에서 움직이는 방향의 반대 방향
         Vector3 desiredVelocity = new Vector3(
             Mathf.Clamp(-viewportVelocity.x * screenDirectionInfluence, -maxScreenFlowSpeed, maxScreenFlowSpeed),
             Mathf.Clamp(-viewportVelocity.y * screenDirectionInfluence, -maxScreenFlowSpeed, maxScreenFlowSpeed),
-            -Mathf.Lerp(idleFlowSpeed, maxFlowSpeed, speed01));
+            -Mathf.Lerp(idleFlowSpeed, maxFlowSpeed, speed01) * Mathf.Lerp(1f, boostSpeedMultiplier, boostAmount));
 
+        // 부드럽게 변경
         currentVelocity = Vector3.SmoothDamp(currentVelocity, desiredVelocity, ref velocitySmoothRef, responseSmoothTime, Mathf.Infinity, deltaTime);
+        // 현재 상태 저장
         previousPlayerPosition = player.position;
         previousViewportPosition = viewportPosition;
     }
 
+    // 효과의 강도를 계산하여 ParticleSystem 설정에 반영
     private void UpdateParticleMotion()
     {
-        float deltaTime = Application.isPlaying ? Time.deltaTime : 1f / 60f;
-        currentRate = Mathf.SmoothDamp(currentRate, Mathf.Lerp(idleSpawnRate, maxSpawnRate, speed01), ref rateSmoothRef, responseSmoothTime, Mathf.Infinity, deltaTime);
-        currentLengthScale = Mathf.SmoothDamp(currentLengthScale, Mathf.Lerp(idleLengthScale, maxLengthScale, speed01), ref lengthSmoothRef, responseSmoothTime, Mathf.Infinity, deltaTime);
-        currentVelocityScale = Mathf.SmoothDamp(currentVelocityScale, Mathf.Lerp(idleVelocityScale, maxVelocityScale, speed01), ref velocityScaleSmoothRef, responseSmoothTime, Mathf.Infinity, deltaTime);
+        float deltaTime = Time.deltaTime;
+        // 목표 생성량 계산
+        float targetRate = Mathf.Lerp(idleSpawnRate, maxSpawnRate, speed01) * Mathf.Lerp(1f, boostSpawnMultiplier, boostAmount);
+        // 목표 길이 계산
+        float targetLengthScale = Mathf.Lerp(idleLengthScale, maxLengthScale, speed01) * Mathf.Lerp(1f, boostLengthMultiplier, boostAmount);
+        // 목표 Velocity Scale 계산
+        float targetVelocityScale = Mathf.Lerp(idleVelocityScale, maxVelocityScale, speed01) * Mathf.Lerp(1f, boostVelocityScaleMultiplier, boostAmount);
+        // 부드럽게 변경
+        currentRate = Mathf.SmoothDamp(currentRate, targetRate, ref rateSmoothRef, responseSmoothTime, Mathf.Infinity, deltaTime);
+        currentLengthScale = Mathf.SmoothDamp(currentLengthScale, targetLengthScale, ref lengthSmoothRef, responseSmoothTime, Mathf.Infinity, deltaTime);
+        currentVelocityScale = Mathf.SmoothDamp(currentVelocityScale, targetVelocityScale, ref velocityScaleSmoothRef, responseSmoothTime, Mathf.Infinity, deltaTime);
 
-        ApplyDynamicParticleSettings();
+        ApplyParticleMotionSettings(); // ParticleSystem에 적용
     }
 
-    private void InitializeRuntimeValues()
+    private void InitializeValues() // 설정 초기화
     {
         currentVelocity = new Vector3(0f, 0f, -idleFlowSpeed);
         currentRate = idleSpawnRate;
@@ -159,28 +144,9 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
         currentVelocityScale = idleVelocityScale;
         emissionAccumulator = 0f;
     }
-
-    private void ConfigureSpawnDistribution()
-    {
-        ParticleSystem.MainModule main = starParticleSystem.main;
-        main.maxParticles = maxParticles;
-        main.prewarm = false;
-        main.playOnAwake = false;
-
-        ParticleSystem.ShapeModule shape = starParticleSystem.shape;
-        shape.enabled = false;
-
-        ParticleSystem.EmissionModule emission = starParticleSystem.emission;
-        emission.enabled = false;
-        emission.rateOverTime = 0f;
-    }
     
-    private void ApplyDynamicParticleSettings()
+    private void ApplyParticleMotionSettings()
     {
-        ParticleSystem.EmissionModule emission = starParticleSystem.emission;
-        emission.enabled = false;
-        emission.rateOverTime = 0f;
-
         ParticleSystem.VelocityOverLifetimeModule velocityOverLifetime = starParticleSystem.velocityOverLifetime;
         velocityOverLifetime.x = currentVelocity.x;
         velocityOverLifetime.y = currentVelocity.y;
@@ -191,20 +157,18 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
         particleRenderer.velocityScale = currentVelocityScale;
     }
 
+    // 따라 프레임마다 몇 개 생성할지 계산
     private void EmitStars(float deltaTime)
     {
-        if (!Application.isPlaying || deltaTime <= 0f)
-        {
-            return;
-        }
+        if (deltaTime <= 0f) return;
 
-        emissionAccumulator += currentRate * deltaTime;
-        int emitCount = Mathf.Min(Mathf.FloorToInt(emissionAccumulator), 32);
+        emissionAccumulator += currentRate * deltaTime; // 누적 생성량 계산
+        int emitCount = Mathf.Min(Mathf.FloorToInt(emissionAccumulator), 32); // 생성 개수
         emissionAccumulator -= emitCount;
 
         for (int i = 0; i < emitCount; i++)
         {
-            EmitStar();
+            EmitStar(); // 생성
         }
     }
 
@@ -217,11 +181,14 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
         }
     }
 
+    // 랜덤 위치를 고르고, 그 위치에 파티클을 하나 생성
     private void EmitStar()
     {
+        // 화면 안 생성 위치 가져오기
         Vector2 viewportPosition = GetViewportSpawnPosition();
         float depthT = Mathf.Pow(Random.value, farDepthBias);
         float depth = Mathf.Lerp(minSpawnDepth, maxSpawnDepth, depthT);
+        // World Position 으로 변환
         Vector3 worldPosition = targetCamera.ViewportToWorldPoint(
             new Vector3(viewportPosition.x, viewportPosition.y, depth));
 
@@ -235,22 +202,27 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
         starParticleSystem.Emit(emitParams, 1);
     }
 
+    // 가장자리 쪽에 더 많이 나오도록 위치 계산
     private Vector2 GetViewportSpawnPosition()
     {
         Vector2 viewportPosition = Vector2.zero;
+        // 사용 가능한 화면 영역 계산
         float usableHalfWidth = 0.5f - viewportPadding;
         float usableHalfHeight = 0.5f - viewportPadding;
 
         for (int attempt = 0; attempt < 16; attempt++)
         {
+            // 랜덤값 생성
             float x = BiasTowardEdge(Random.Range(-1f, 1f));
             float y = BiasTowardEdge(Random.Range(-1f, 1f));
             viewportPosition = new Vector2(
                 0.5f + x * usableHalfWidth,
                 0.5f + y * usableHalfHeight);
 
+            // 데드존 계산
             float deadZoneX = centerDeadZone.x > 0f ? (viewportPosition.x - 0.5f) / centerDeadZone.x : float.PositiveInfinity;
             float deadZoneY = centerDeadZone.y > 0f ? (viewportPosition.y - 0.5f) / centerDeadZone.y : float.PositiveInfinity;
+            // 화면 중앙은 비워 두어 플레이어 시야가 가려지지 않도록 하기
             if (deadZoneX * deadZoneX + deadZoneY * deadZoneY >= 1f)
             {
                 return viewportPosition;
@@ -260,31 +232,19 @@ public sealed class StarfieldSpeedEffect : MonoBehaviour
         return new Vector2(viewportPadding, Random.Range(viewportPadding, 1f - viewportPadding));
     }
 
-    private float BiasTowardEdge(float value)
+    private float BiasTowardEdge(float value) // 랜덤값을 화면 가장자리 방향으로 밀어내기
     {
         return Mathf.Sign(value) * Mathf.Pow(Mathf.Abs(value), 1f / edgeBias);
     }
 
-    private void ResolvePlayer()
+    // 스테이지 매니저에서 호출
+    public void SetBoostAmount(float amount)
     {
-        if (player == null && autoFindPlayer)
-        {
-            PlaneController planeController = FindFirstObjectByType<PlaneController>();
-            if (planeController != null)
-            {
-                player = planeController.transform;
-            }
-        }
+        boostAmount = Mathf.Clamp01(amount);
     }
 
-    private void CachePlayerState()
+    private void CachePlayerState() // 플레이어 위치 캐싱
     {
-        if (player == null || targetCamera == null)
-        {
-            hasPreviousPlayerPosition = false;
-            return;
-        }
-
         previousPlayerPosition = player.position;
         previousViewportPosition = targetCamera.WorldToViewportPoint(player.position);
         hasPreviousPlayerPosition = true;

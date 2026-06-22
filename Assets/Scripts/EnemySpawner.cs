@@ -15,6 +15,7 @@ public class EnemySpawner : MonoBehaviour
 
     private int nextEnemyIndex;
     private PlaneController player;
+    private bool isSpawning;
     
     private void Start()
     {
@@ -36,19 +37,35 @@ public class EnemySpawner : MonoBehaviour
     {
         StopSpawning(); // 중복 코루틴 실행 방지
         
+        isSpawning = true;
         StartCoroutine(SpawnLoop(interval));
     }
 
     public void StopSpawning()
     {
+        isSpawning = false;
         StopAllCoroutines();
+    }
+
+    public void ClearEnemies() // 남아있는 모든 EnemyController 제거
+    {
+        StopSpawning();
+
+        EnemyController[] enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.None);
+        foreach (EnemyController enemy in enemies)
+        {
+            if (enemy != null)
+            {
+                enemy.Despawn();
+            }
+        }
     }
     
     private IEnumerator SpawnLoop(float interval)
     {
         yield return new WaitForSeconds(firstSpawnDelay);
 
-        while (enabled) // 활성화되어 있는 동안
+        while (enabled && isSpawning) // 활성화되어 있고 스폰 허용 상태인 동안
         {
             EnemyController enemy = SpawnEnemy();
             if (enemy != null)
@@ -64,7 +81,7 @@ public class EnemySpawner : MonoBehaviour
         if (enemyPrefabs == null || enemyPrefabs.Length == 0) return null;
 
         GameObject enemyPrefab = GetEnemyPrefab();
-        GameObject enemyObject = Instantiate(enemyPrefab, GetSpawnPosition(), spawnPoint.rotation);
+        GameObject enemyObject = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
         EnemyController enemy = enemyObject.GetComponent<EnemyController>();
         
         enemy.Initialize(player.transform); // 플레이어를 추적 대상으로 전달
@@ -85,11 +102,5 @@ public class EnemySpawner : MonoBehaviour
         }
 
         return enemyPrefab;
-    }
-
-    private Vector3 GetSpawnPosition()
-    {
-        Vector2 offset = Random.insideUnitCircle * spawnPositionRadius; // 스폰 지점 주변의 랜덤 위치 계산
-        return spawnPoint.position + spawnPoint.right * offset.x + spawnPoint.up * offset.y;
     }
 }

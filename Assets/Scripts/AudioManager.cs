@@ -5,6 +5,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource sfxSource; // SFX AudioSource 컴포넌트 
     [SerializeField] private AudioClip explosionClip; // 폭발음
     [SerializeField] private AudioClip shootClip; // 폭발음
+    [SerializeField] private AudioClip boostClip;
 
     public static AudioManager Instance { get; private set; } // 싱글톤 인스턴스
 
@@ -27,5 +28,10 @@ public class AudioManager : MonoBehaviour
     public void PlayShoot() // 발사 효과음 재생
     {
         sfxSource.PlayOneShot(shootClip, 0.3f);
+    }
+
+    public void PlayBoost()
+    {
+        sfxSource.PlayOneShot(boostClip);
     }
 }
